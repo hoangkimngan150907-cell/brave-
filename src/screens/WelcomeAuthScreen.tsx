@@ -1,7 +1,14 @@
 import React, { useState } from 'react';
-import { signInWithPopup } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  updateProfile,
+} from 'firebase/auth';
 import { ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { getT } from '../i18n/translations';
+import { apiRequest } from '../lib/api';
 import { auth, googleAuthProvider } from '../lib/firebase';
 import type {
   Language,
@@ -10,6 +17,7 @@ import type {
   UserProgress,
 } from '../types/brave';
 import { PWAInstallButton } from '../components/PWAComponents';
+import heroCourageImg from '../assets/images/hero_courage_editorial_1794589219154.jpg';
 
 interface WelcomeAuthScreenProps {
   lang: Language;
@@ -19,6 +27,46 @@ interface WelcomeAuthScreenProps {
     preferences: UserPreferences;
     progress: UserProgress;
   }) => void;
+}
+
+function mapFirebaseAuthError(err: unknown, lang: Language): string {
+  const code = (err as { code?: string })?.code || '';
+  const isVi = lang === 'vi';
+
+  switch (code) {
+    case 'auth/email-already-in-use':
+      return isVi
+        ? 'Email này đã có tài khoản. Hãy chuyển sang tab Đăng nhập.'
+        : 'This email is already registered. Please switch to Log In.';
+    case 'auth/invalid-credential':
+    case 'auth/wrong-password':
+    case 'auth/user-not-found':
+      return isVi
+        ? 'Email hoặc mật khẩu chưa đúng. Nếu bạn chưa có tài khoản, hãy chọn tab Đăng ký.'
+        : 'Invalid email or password. Switch to Sign Up if you are new.';
+    case 'auth/invalid-email':
+      return isVi
+        ? 'Vui lòng nhập địa chỉ email hợp lệ.'
+        : 'Please enter a valid email address.';
+    case 'auth/weak-password':
+      return isVi
+        ? 'Mật khẩu cần ít nhất 6 ký tự.'
+        : 'Password must be at least 6 characters.';
+    case 'auth/too-many-requests':
+      return isVi
+        ? 'Bạn thao tác hơi nhanh. Vui lòng đợi vài phút rồi thử lại.'
+        : 'Too many attempts. Please wait a few minutes and try again.';
+    case 'auth/popup-closed-by-user':
+      return isVi
+        ? 'Bạn đã đóng cửa sổ đăng nhập Google.'
+        : 'Google sign-in popup was closed.';
+    case 'auth/operation-not-allowed':
+      return isVi
+        ? 'Phương thức Email/Mật khẩu chưa được bật trong Firebase Authentication Console.'
+        : 'Email/Password sign-in is not enabled yet in Firebase Authentication Console.';
+    default:
+      return err instanceof Error ? err.message : 'Authentication error';
+  }
 }
 
 export const WelcomeAuthScreen: React.FC<WelcomeAuthScreenProps> = ({
@@ -31,31 +79,49 @@ export const WelcomeAuthScreen: React.FC<WelcomeAuthScreenProps> = ({
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [resetStep, setResetStep] = useState<'request' | 'verify'>('request');
-  const [resetCode, setResetCode] = useState('');
-  const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [infoMsg, setInfoMsg] = useState<string | null>(null);
   const [heroImgFailed, setHeroImgFailed] = useState(false);
+
+  const syncUserFromBackend = async (displayName?: string) => {
+    if (displayName) {
+      await apiRequest('/api/me/profile', {
+        method: 'PUT',
+        body: JSON.stringify({
+          fullName: displayName,
+          preferredLanguage: lang,
+        }),
+      }).catch(() => {});
+    } else {
+      await apiRequest('/api/me/profile', {
+        method: 'PUT',
+        body: JSON.stringify({ preferredLanguage: lang }),
+      }).catch(() => {});
+    }
+
+    return apiRequest<{
+      user: UserProfile;
+      preferences: UserPreferences;
+      progress: UserProgress;
+    }>('/api/me');
+  };
 
   const handleGoogleSignIn = async () => {
     setErrorMsg(null);
     setInfoMsg(null);
     setLoading(true);
     try {
-      await signInWithPopup(auth, googleAuthProvider);
+      const cred = await signInWithPopup(auth, googleAuthProvider);
+      await cred.user.getIdToken();
+      const data = await apiRequest<{
+        user: UserProfile;
+        preferences: UserPreferences;
+        progress: UserProgress;
+      }>('/api/me');
+      onAuthSuccess(data);
     } catch (err) {
-      const code = (err as { code?: string })?.code || '';
-      if (code === 'auth/popup-closed-by-user') {
-        setErrorMsg(
-          lang === 'vi'
-            ? 'Bạn đã đóng cửa sổ đăng nhập Google.'
-            : 'Google sign-in popup was closed.'
-        );
-      } else {
-        setErrorMsg(err instanceof Error ? err.message : 'Google sign-in failed');
-      }
+      setErrorMsg(mapFirebaseAuthError(err, lang));
     } finally {
       setLoading(false);
     }
@@ -85,124 +151,40 @@ export const WelcomeAuthScreen: React.FC<WelcomeAuthScreenProps> = ({
       return;
     }
 
-    if (mode === 'reset' && resetStep === 'verify' && !resetCode.trim()) {
-      setErrorMsg(
-        lang === 'vi'
-          ? 'Vui lòng nhập mã xác nhận 6 số.'
-          : 'Please enter the 6-digit verification code.'
-      );
-      return;
-    }
-
     setLoading(true);
     try {
       if (mode === 'signup') {
-        const res = await fetch('/api/auth/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            email: cleanEmail,
-            password,
-            fullName: fullName.trim(),
-            preferredLanguage: lang,
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          if (data.error === 'EMAIL_EXISTS') {
-            throw new Error(
-              lang === 'vi'
-                ? 'Email này đã có tài khoản. Hãy chuyển sang tab Đăng nhập.'
-                : 'This email is already registered. Please switch to Log In.'
-            );
-          }
-          throw new Error(data.error || 'Could not create account.');
+        const cleanName = fullName.trim();
+        const cred = await createUserWithEmailAndPassword(
+          auth,
+          cleanEmail,
+          password
+        );
+        if (cleanName) {
+          await updateProfile(cred.user, { displayName: cleanName });
         }
+        await cred.user.getIdToken(true);
+        const data = await syncUserFromBackend(cleanName || undefined);
         onAuthSuccess(data);
       } else if (mode === 'login') {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ email: cleanEmail, password }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          if (data.error === 'INVALID_CREDENTIALS') {
-            throw new Error(
-              lang === 'vi'
-                ? 'Email hoặc mật khẩu chưa đúng. Nếu bạn chưa có tài khoản, hãy chọn tab Đăng ký.'
-                : 'Invalid email or password. Switch to Sign Up if you are new.'
-            );
-          }
-          throw new Error(data.error || 'Login failed.');
-        }
+        const cred = await signInWithEmailAndPassword(auth, cleanEmail, password);
+        await cred.user.getIdToken();
+        const data = await apiRequest<{
+          user: UserProfile;
+          preferences: UserPreferences;
+          progress: UserProgress;
+        }>('/api/me');
         onAuthSuccess(data);
-      } else if (resetStep === 'request') {
-        const res = await fetch('/api/auth/forgot-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ email: cleanEmail }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          if (data.error === 'ACCOUNT_NOT_FOUND') {
-            throw new Error(
-              lang === 'vi'
-                ? 'Không tìm thấy tài khoản email này (hoặc tài khoản dùng Google Sign-In).'
-                : 'No email/password account found for this address.'
-            );
-          }
-          throw new Error(data.error || 'Could not start password reset.');
-        }
-        setResetStep('verify');
-        setInfoMsg(
-          lang === 'vi'
-            ? `Mã xác nhận đặt lại mật khẩu của bạn là: ${data.resetCode} (có hiệu lực 15 phút).`
-            : `Your password reset verification code is: ${data.resetCode} (valid for 15 minutes).`
-        );
       } else {
-        if (newPassword.length < 6) {
-          throw new Error(
-            lang === 'vi'
-              ? 'Mật khẩu mới cần ít nhất 6 ký tự.'
-              : 'New password must be at least 6 characters.'
-          );
-        }
-        const res = await fetch('/api/auth/reset-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            email: cleanEmail,
-            code: resetCode.trim(),
-            newPassword,
-          }),
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(
-            data.error === 'INVALID_RESET_CODE'
-              ? lang === 'vi'
-                ? 'Mã xác nhận không đúng hoặc đã hết hạn.'
-                : 'Invalid or expired reset code.'
-              : data.error || 'Failed to reset password.'
-          );
-        }
-        setMode('login');
-        setResetStep('request');
-        setResetCode('');
-        setNewPassword('');
+        await sendPasswordResetEmail(auth, cleanEmail);
         setInfoMsg(
           lang === 'vi'
-            ? 'Đã đổi mật khẩu thành công! Bạn có thể đăng nhập ngay.'
-            : 'Password updated! You can now log in.'
+            ? `Đã gửi email đặt lại mật khẩu tới ${cleanEmail}. Hãy kiểm tra hộp thư đến hoặc thư rác (Spam) nhé!`
+            : `Password reset email sent to ${cleanEmail}. Please check your inbox or spam folder.`
         );
       }
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Authentication error');
+      setErrorMsg(mapFirebaseAuthError(err, lang));
     } finally {
       setLoading(false);
     }
@@ -279,7 +261,7 @@ export const WelcomeAuthScreen: React.FC<WelcomeAuthScreenProps> = ({
             <div className="relative rounded-3xl overflow-hidden border border-[#EADBD5] bg-[#E7BDB8]/35 aspect-[16/9]">
               {!heroImgFailed ? (
                 <img
-                  src="/src/assets/images/hero_courage_editorial_1794589219154.jpg"
+                  src={heroCourageImg}
                   alt="Warm sunlit architectural archway representing calm courage"
                   referrerPolicy="no-referrer"
                   onError={() => setHeroImgFailed(true)}
@@ -311,7 +293,6 @@ export const WelcomeAuthScreen: React.FC<WelcomeAuthScreenProps> = ({
                       type="button"
                       onClick={() => {
                         setMode(tab);
-                        setResetStep('request');
                         setErrorMsg(null);
                         setInfoMsg(null);
                       }}
@@ -410,38 +391,6 @@ export const WelcomeAuthScreen: React.FC<WelcomeAuthScreenProps> = ({
                     </div>
                   )}
 
-                  {mode === 'reset' && resetStep === 'verify' && (
-                    <>
-                      <div>
-                        <label className="block text-xs font-medium text-[#987D77] mb-1.5">
-                          {lang === 'vi' ? 'Mã xác nhận (6 số)' : '6-digit reset code'}
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={resetCode}
-                          onChange={(e) => setResetCode(e.target.value)}
-                          className="w-full rounded-2xl border border-[#EADBD5] bg-[#F7EEE9]/50 px-4 py-3 text-sm text-[#493633]"
-                          placeholder="123456"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-[#987D77] mb-1.5">
-                          {lang === 'vi' ? 'Mật khẩu mới' : 'New password'}
-                        </label>
-                        <input
-                          type="password"
-                          required
-                          minLength={6}
-                          value={newPassword}
-                          onChange={(e) => setNewPassword(e.target.value)}
-                          className="w-full rounded-2xl border border-[#EADBD5] bg-[#F7EEE9]/50 px-4 py-3 text-sm text-[#493633]"
-                          placeholder="••••••••"
-                        />
-                      </div>
-                    </>
-                  )}
-
                   {errorMsg && (
                     <div className="rounded-2xl border border-[#C98585]/50 bg-[#E7BDB8]/35 px-4 py-3 text-xs text-[#493633] leading-relaxed">
                       {errorMsg}
@@ -469,11 +418,7 @@ export const WelcomeAuthScreen: React.FC<WelcomeAuthScreenProps> = ({
                           ? t.auth.submitLogin
                           : mode === 'signup'
                             ? t.auth.submitSignup
-                            : resetStep === 'request'
-                              ? t.auth.submitReset
-                              : lang === 'vi'
-                                ? 'Xác nhận đổi mật khẩu'
-                                : 'Confirm new password'}
+                            : t.auth.submitReset}
                     </span>
                     <ArrowRight className="w-4 h-4" />
                   </button>

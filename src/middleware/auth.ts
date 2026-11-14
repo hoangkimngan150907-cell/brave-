@@ -1,15 +1,7 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { NextFunction, Request, Response } from 'express';
 import type { DecodedIdToken } from 'firebase-admin/auth';
-import { eq } from 'drizzle-orm';
-import { db } from '../db/index.ts';
-import { users } from '../db/schema.ts';
 import { getOrCreateUser } from '../db/users.ts';
-import { adminAuth } from '../lib/firebase-admin.ts';
-import {
-  extractCookie,
-  SESSION_COOKIE_NAME,
-  verifySessionToken,
-} from '../server/auth.ts';
+import { verifyFirebaseIdToken } from '../lib/firebase-admin.ts';
 
 export interface AuthRequest extends Request {
   user?: DecodedIdToken;
@@ -23,42 +15,40 @@ export const requireAuth = async (
   next: NextFunction
 ) => {
   const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    const token = authHeader.split('Bearer ')[1];
-    try {
-      const decodedToken = await adminAuth.verifyIdToken(token);
-      req.user = decodedToken;
-      req.authUid = decodedToken.uid;
-      const dbUser = await getOrCreateUser(
-        decodedToken.uid,
-        decodedToken.email || `${decodedToken.uid}@brave.app`,
-        decodedToken.name,
-        decodedToken.picture
-      );
-      req.dbUserId = dbUser.id;
-      return next();
-    } catch (error) {
-      console.error('Error verifying Firebase ID token:', error);
-      return res.status(401).json({ error: 'Unauthorized: Invalid token' });
-    }
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res
+      .status(401)
+      .json({ error: 'Unauthorized: Missing Authorization Bearer token' });
   }
 
-  const sessionCookie = extractCookie(req, SESSION_COOKIE_NAME);
-  if (sessionCookie) {
-    const verified = verifySessionToken(sessionCookie);
-    if (verified) {
-      const [dbUser] = await db
-        .select({ id: users.id, uid: users.uid })
-        .from(users)
-        .where(eq(users.id, verified.userId))
-        .limit(1);
-      if (dbUser && dbUser.uid === verified.uid) {
-        req.dbUserId = dbUser.id;
-        req.authUid = dbUser.uid;
-        return next();
-      }
-    }
+  const token = authHeader.slice('Bearer '.length).trim();
+  if (!token) {
+    return res
+      .status(401)
+      .json({ error: 'Unauthorized: Empty Authorization Bearer token' });
   }
 
-  return res.status(401).json({ error: 'Unauthorized: Missing or invalid session' });
+  try {
+    const decodedToken = await verifyFirebaseIdToken(token);
+    req.user = decodedToken;
+    req.authUid = decodedToken.uid;
+    const dbUser = await getOrCreateUser(
+      decodedToken.uid,
+      decodedToken.email || `${decodedToken.uid}@brave.app`,
+      decodedToken.name,
+      decodedToken.picture
+    );
+    req.dbUserId = dbUser.id;
+    return next();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Invalid token';
+    if (message.includes('Service Account credentials') || message.includes('not initialized')) {
+      console.error('Firebase Admin configuration error:', message);
+      return res.status(503).json({
+        error: 'Authentication service is not configured with Firebase Admin credentials.',
+      });
+    }
+    console.error('Error verifying Firebase ID token:', error);
+    return res.status(401).json({ error: 'Unauthorized: Invalid or expired Firebase token' });
+  }
 };

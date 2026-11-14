@@ -11,6 +11,7 @@ import type {
 } from '../types/brave';
 import { PWAInstallButton } from '../components/PWAComponents';
 import { ReminderSettingsCard } from '../components/ReminderSettingsCard';
+import courageEmblemImg from '../assets/images/courage_botanical_emblem_1794589220227.jpg';
 
 interface ProfileScreenProps {
   lang: Language;
@@ -162,7 +163,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             <div className="w-16 h-16 rounded-full overflow-hidden border border-[#EADBD5] bg-[#E7BDB8]/40 shrink-0">
               {!imgFailed ? (
                 <img
-                  src="/src/assets/images/courage_botanical_emblem_1794589220227.jpg"
+                  src={courageEmblemImg}
                   alt="BRAVE botanical emblem"
                   referrerPolicy="no-referrer"
                   onError={() => setImgFailed(true)}

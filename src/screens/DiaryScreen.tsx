@@ -3,6 +3,7 @@ import { ImagePlus, Lock, Plus, Search, Trash2 } from 'lucide-react';
 import { DIARY_PROMPTS, getT } from '../i18n/translations';
 import { apiRequest } from '../lib/api';
 import type { DiaryEntry, Language } from '../types/brave';
+import diaryJournalImg from '../assets/images/diary_journal_desk_1794589219693.jpg';
 
 export const DiaryScreen: React.FC<{ lang: Language }> = ({ lang }) => {
   const t = getT(lang);
@@ -105,7 +106,7 @@ export const DiaryScreen: React.FC<{ lang: Language }> = ({ lang }) => {
           <div className="lg:col-span-5 rounded-3xl overflow-hidden border border-[#EADBD5] bg-[#E7BDB8]/30 aspect-[4/3]">
             {!imgFailed ? (
               <img
-                src="/src/assets/images/diary_journal_desk_1794589219693.jpg"
+                src={diaryJournalImg}
                 alt="Linen journal and pen on sunlit travertine"
                 referrerPolicy="no-referrer"
                 onError={() => setImgFailed(true)}

@@ -9,6 +9,7 @@ import type {
   UserChallenge,
   UserProgress,
 } from '../types/brave';
+import futureLetterImg from '../assets/images/future_letter_envelope_1794589220202.jpg';
 
 interface JourneyScreenProps {
   lang: Language;
@@ -289,7 +290,7 @@ export const JourneyScreen: React.FC<JourneyScreenProps> = ({ lang, progress }) 
             <div className="rounded-2xl overflow-hidden border border-[#EADBD5] aspect-[16/9] bg-[#E7BDB8]/30">
               {!letterImgFailed ? (
                 <img
-                  src="/src/assets/images/future_letter_envelope_1794589220202.jpg"
+                  src={futureLetterImg}
                   alt="Wax-sealed cotton envelope on blush linen"
                   referrerPolicy="no-referrer"
                   onError={() => setLetterImgFailed(true)}

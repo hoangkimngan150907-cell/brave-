@@ -50,10 +50,6 @@ export default function App() {
   };
 
   const handleLoggedOut = async () => {
-    await fetch('/api/auth/logout', {
-      method: 'POST',
-      credentials: 'include',
-    }).catch(() => {});
     await signOut(auth).catch(() => {});
     setUserProfile(null);
     setPreferences(null);
@@ -64,7 +60,17 @@ export default function App() {
   useEffect(() => {
     let active = true;
     const unsub = onAuthStateChanged(auth, async (fbUser) => {
+      if (!fbUser) {
+        if (!active) return;
+        setUserProfile(null);
+        setPreferences(null);
+        setProgress(null);
+        setAuthChecked(true);
+        return;
+      }
+
       try {
+        await fbUser.getIdToken();
         const data = await apiRequest<{
           user: UserProfile;
           preferences: UserPreferences;
@@ -76,11 +82,9 @@ export default function App() {
         setProgress(data.progress);
       } catch {
         if (!active) return;
-        if (!fbUser) {
-          setUserProfile(null);
-          setPreferences(null);
-          setProgress(null);
-        }
+        setUserProfile(null);
+        setPreferences(null);
+        setProgress(null);
       } finally {
         if (active) setAuthChecked(true);
       }

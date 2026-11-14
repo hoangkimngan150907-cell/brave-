@@ -4,11 +4,11 @@ import type { Request, Response } from 'express';
 export const SESSION_COOKIE_NAME = 'brave_session';
 
 function getSessionSecret(): string {
-  return (
-    process.env.SESSION_SECRET ||
-    process.env.SQL_PASSWORD ||
-    'brave-fallback-dev-secret-change-in-prod'
-  );
+  const secret = process.env.SESSION_SECRET?.trim();
+  if (!secret) {
+    throw new Error('SESSION_SECRET environment variable is required.');
+  }
+  return secret;
 }
 
 export function hashPassword(password: string): string {

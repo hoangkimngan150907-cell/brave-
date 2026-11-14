@@ -11,7 +11,31 @@ export async function getOrCreateUser(
   try {
     const existing = await db.select().from(users).where(eq(users.uid, uid)).limit(1);
     if (existing.length > 0) {
-      return existing[0];
+      const current = existing[0];
+      const nextFullName =
+        displayName && (!current.fullName || current.fullName === current.email.split('@')[0])
+          ? displayName
+          : current.fullName;
+      const nextAvatar = avatarUrl && !current.avatarUrl ? avatarUrl : current.avatarUrl;
+      const nextEmail = email && current.email !== email ? email : current.email;
+      if (
+        nextFullName !== current.fullName ||
+        nextAvatar !== current.avatarUrl ||
+        nextEmail !== current.email
+      ) {
+        const [synced] = await db
+          .update(users)
+          .set({
+            fullName: nextFullName,
+            avatarUrl: nextAvatar,
+            email: nextEmail,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.id, current.id))
+          .returning();
+        return synced;
+      }
+      return current;
     }
 
     const baseUsername = (email.split('@')[0] || 'brave')

@@ -1,22 +1,35 @@
+databases:
+  - name: brave-db
+    databaseName: brave
+    user: brave
+    plan: free
+
 services:
   - type: web
-    name: brave-growth-app
+    name: brave-api
     runtime: node
     plan: free
-    buildCommand: npm install && npm run build
-    startCommand: npm start
+    buildCommand: npm install --legacy-peer-deps && npm run build
+    startCommand: npm run db:migrate && npm start
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: brave-db
+          property: connectionString
       - key: GEMINI_API_KEY
         sync: false
-      - key: SQL_HOST
+      - key: FRONTEND_ORIGIN
         sync: false
-      - key: SQL_USER
-        sync: false
-      - key: SQL_PASSWORD
-        sync: false
-      - key: SQL_DB_NAME
+      - key: FIREBASE_PROJECT_ID
+        value: hidef-tempo-xkpm1
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
         sync: false
       - key: SESSION_SECRET
         generateValue: true
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false

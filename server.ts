@@ -1,10 +1,10 @@
 import 'dotenv/config';
 import crypto from 'crypto';
+import fs from 'fs';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { and, desc, eq, inArray, notInArray, or, sql } from 'drizzle-orm';
-import { createServer as createViteServer } from 'vite';
 import { db } from './src/db/index.ts';
 import {
   challengeGroups,
@@ -117,9 +117,76 @@ async function pickDailyChallengeForUser(userId: number, excludeChallengeIds: nu
   return topPool[Math.floor(Math.random() * topPool.length)]?.ch || allChallenges[0];
 }
 
+function getAllowedOrigins(): Set<string> {
+  const origins = new Set<string>();
+  const addOrigin = (raw?: string) => {
+    if (!raw) return;
+    for (const part of raw.split(',')) {
+      const cleaned = part.trim().replace(/\/+$/, '');
+      if (cleaned) origins.add(cleaned);
+    }
+  };
+
+  addOrigin(process.env.FRONTEND_ORIGIN);
+  addOrigin(process.env.APP_URL);
+
+  if (!process.env.FRONTEND_ORIGIN) {
+    let projectId = process.env.FIREBASE_PROJECT_ID?.trim();
+    if (!projectId) {
+      try {
+        const cfgPath = path.resolve(__dirname, 'firebase-applet-config.json');
+        if (fs.existsSync(cfgPath)) {
+          const parsed = JSON.parse(fs.readFileSync(cfgPath, 'utf8')) as {
+            projectId?: string;
+          };
+          projectId = parsed.projectId;
+        }
+      } catch {
+        // Ignore missing config file
+      }
+    }
+    if (projectId) {
+      origins.add(`https://${projectId}.web.app`);
+      origins.add(`https://${projectId}.firebaseapp.com`);
+    }
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    origins.add('http://localhost:3000');
+    origins.add('http://localhost:5173');
+  }
+
+  return origins;
+}
+
 async function startServer() {
   const app = express();
   app.set('trust proxy', 1);
+
+  // Strict CORS for Firebase Hosting frontend + Render backend (Bearer token auth)
+  const allowedOrigins = getAllowedOrigins();
+  app.use((req, res, next) => {
+    const requestOrigin = req.headers.origin?.replace(/\/+$/, '');
+    if (requestOrigin && allowedOrigins.has(requestOrigin)) {
+      res.setHeader('Access-Control-Allow-Origin', requestOrigin);
+      res.setHeader('Vary', 'Origin');
+      res.setHeader(
+        'Access-Control-Allow-Methods',
+        'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+      );
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Content-Type, Authorization'
+      );
+      res.setHeader('Access-Control-Max-Age', '86400');
+    }
+
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(204);
+    }
+    return next();
+  });
+
   app.use(express.json({ limit: '4mb' }));
 
   app.get('/api/health', (_req, res) => {
@@ -521,7 +588,9 @@ async function startServer() {
       clearSessionCookie(req, res);
       if (uid && !uid.startsWith('email_')) {
         try {
-          await adminAuth.deleteUser(uid);
+          if (adminAuth) {
+            await adminAuth.deleteUser(uid);
+          }
         } catch (authErr) {
           console.warn('Firebase user deletion warning:', authErr);
         }
@@ -2007,10 +2076,15 @@ async function startServer() {
     }
   });
 
+  app.use('/api/*', (_req, res) => {
+    res.status(404).json({ error: 'API route not found' });
+  });
+
   const isProd =
     process.env.NODE_ENV === 'production' ||
     process.env.npm_lifecycle_event === 'start';
   if (!isProd) {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
@@ -2018,20 +2092,26 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.resolve(__dirname, 'dist');
-    app.use(
-      express.static(distPath, {
-        setHeaders: (res, filePath) => {
-          if (filePath.endsWith('.webmanifest')) {
-            res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
-          } else if (filePath.endsWith('sw.js')) {
-            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-          }
-        },
-      })
-    );
-    app.get('*', (_req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
+    if (fs.existsSync(distPath)) {
+      app.use(
+        express.static(distPath, {
+          setHeaders: (res, filePath) => {
+            if (filePath.endsWith('.webmanifest')) {
+              res.setHeader('Content-Type', 'application/manifest+json; charset=utf-8');
+            } else if (filePath.endsWith('sw.js') || filePath.endsWith('sw-push.js')) {
+              res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+            }
+          },
+        })
+      );
+      app.get('*', (_req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+      });
+    } else {
+      app.get('/', (_req, res) => {
+        res.json({ ok: true, service: 'brave-api' });
+      });
+    }
   }
 
   const port = Number(process.env.PORT || 3000);
