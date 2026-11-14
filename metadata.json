@@ -1,0 +1,8 @@
+{
+  "name": "BRAVE",
+  "description": "Turn Your Fear Into Your Strength. A personalized AI-powered platform for courage, confidence, and personal growth.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

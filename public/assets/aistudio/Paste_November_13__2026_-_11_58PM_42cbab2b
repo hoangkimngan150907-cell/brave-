@@ -1,0 +1,1095 @@
+# MASTER PROMPT – BUILD BRAVE APPLICATION
+
+## PART 1. PROJECT OVERVIEW – TỔNG QUAN DỰ ÁN
+
+### 1.1. Product Name
+BRAVE
+
+### 1.2. Slogan
+"Turn Your Fear Into Your Strength."
+
+Thông điệp cốt lõi:
+"You don't need to be fearless to be brave. You just need to take the first step."
+
+### 1.3. Product Description
+
+BRAVE is an AI-powered personal growth platform designed to help people recognize, understand and gradually overcome their fears, insecurity, social anxiety, procrastination and psychological barriers through personalized challenges and real-world actions.
+
+BRAVE does not simply provide motivational quotes or productivity tools. It transforms personal development into a practical, measurable and engaging daily journey.
+
+Users can identify their fears, establish personal goals, receive customized challenges, interact with an AI companion, track their progress and connect with a supportive community.
+
+The platform encourages users to take small but meaningful actions every day.
+
+### 1.4. Project Vision
+
+To build an inclusive global platform where everyone can develop courage, confidence and self-awareness regardless of age, background or financial situation.
+
+### 1.5. Core Philosophy
+
+- Courage over comfort.
+- Progress over perfection.
+- Action over motivation.
+- Personal growth without comparison.
+- Everyone deserves access to personal development tools.
+
+### 1.6. Product Positioning
+
+Category:
+- Personal Development
+- AI-powered Self-growth
+- Confidence Building
+- Behavioral Change
+- Mental Wellness Support
+
+BRAVE is a personal growth and self-awareness application, NOT a medical diagnosis or psychotherapy platform.
+
+---
+
+# PART 2. PROBLEM STATEMENT – VẤN ĐỀ CẦN GIẢI QUYẾT
+
+Many people want to improve themselves but struggle with psychological barriers.
+
+Common problems:
+
+1. Fear of judgment and criticism.
+2. Fear of rejection.
+3. Fear of public speaking.
+4. Difficulty initiating conversations.
+5. Lack of confidence.
+6. Fear of failure and making mistakes.
+7. Procrastination and lack of action.
+8. Difficulty stepping outside their comfort zone.
+9. Overthinking and comparing themselves with others.
+10. Having personal goals but lacking a structured plan.
+
+Traditional motivational content often provides temporary inspiration without helping people translate motivation into real-world behavioral change.
+
+BRAVE addresses the gap between KNOWING and DOING.
+
+The application converts personal fears into small, actionable, measurable challenges.
+
+---
+
+# PART 3. TARGET USERS – ĐỐI TƯỢNG NGƯỜI DÙNG
+
+Primary audience: People aged 16 and above.
+
+Target segments:
+
+1. Students who lack confidence in communication, presentations and social interactions.
+2. Young adults entering university or the workplace.
+3. People who fear judgment and rejection.
+4. People who struggle with procrastination.
+5. Individuals seeking personal growth and self-improvement.
+6. People who want to become more confident, proactive and courageous.
+
+The product must be inclusive, easy to understand and accessible to users with different levels of digital literacy.
+
+---
+
+# PART 4. BRAND IDENTITY – NHẬN DIỆN THƯƠNG HIỆU
+
+## 4.1. Visual Direction
+
+Design style:
+
+BLUSH PINK – EDITORIAL – SOFT LUXURY – FEMININE MINIMALISM.
+
+The visual inspiration is a premium blush-pink editorial magazine layout.
+
+The application should feel:
+- Elegant.
+- Warm.
+- Calm.
+- Sophisticated.
+- Friendly.
+- Encouraging.
+- Modern.
+- Emotionally safe.
+
+IMPORTANT:
+The design must not look childish, overly feminine, overly decorative or like a generic pink template.
+
+BRAVE must retain a strong and confident identity despite its soft color palette.
+
+## 4.2. Color Palette
+
+Use these exact primary colors:
+
+| Color | HEX | Purpose |
+|---|---|---|
+| Dusty Rose | #C98585 | Primary buttons, highlights |
+| Blush Pink | #E7BDB8 | Secondary backgrounds |
+| Soft Cream | #F7EEE9 | Main background |
+| Warm Nude | #D9C4BB | Cards and accents |
+| Paper White | #FFFAF7 | Card backgrounds |
+| Deep Brown | #493633 | Primary typography |
+| Muted Brown | #987D77 | Secondary typography |
+| Soft Border | #EADBD5 | Borders and dividers |
+
+Avoid excessive bright colors, neon colors and heavy gradients.
+
+## 4.3. Typography
+
+Use:
+- Playfair Display for headings and editorial elements.
+- DM Sans for body text, buttons and navigation.
+
+Maintain clear typography hierarchy and excellent readability.
+
+## 4.4. UI Principles
+
+- Mobile-first responsive design.
+- Rounded cards and buttons.
+- Soft shadows.
+- Generous whitespace.
+- Minimalist icons.
+- Elegant micro-interactions.
+- Smooth page transitions.
+- Consistent spacing.
+- Clear navigation.
+- Accessible contrast.
+- No unnecessary visual clutter.
+
+---
+
+# PART 5. BILINGUAL SYSTEM – HỆ THỐNG SONG NGỮ
+
+This is a mandatory feature.
+
+The entire application must support:
+
+1. Vietnamese.
+2. English.
+
+Vietnamese must be the default language for first-time users.
+
+Place a visible language switcher in the application header:
+
+[VI] / [EN]
+
+When users switch languages:
+- All navigation labels must change.
+- All buttons must change.
+- All headings must change.
+- All onboarding questions must change.
+- All notifications must change.
+- All error messages must change.
+- All settings must change.
+- All challenge descriptions must change.
+- All system-generated interface messages must change.
+
+Do not translate only the homepage.
+
+Use a centralized internationalization system such as i18next or an equivalent dictionary-based localization system.
+
+Remember the user's language preference after they leave and return.
+
+The language switch must not reset user data, progress or account settings.
+
+AI-generated content should respond in the language currently selected by the user.
+
+---
+
+# PART 6. AUTHENTICATION – ĐĂNG KÝ VÀ ĐĂNG NHẬP
+
+Build a real authentication system.
+
+Required features:
+
+1. Sign up with email and password.
+2. Log in with email and password.
+3. Log out.
+4. Forgot password.
+5. Password reset through email.
+6. Email verification.
+7. Persistent sessions.
+8. Protected user routes.
+9. Account profile.
+10. Account deletion.
+11. Optional Google sign-in if supported.
+
+Each user must have an independent account and private data.
+
+Never use localStorage as the production authentication database.
+
+Use Supabase Authentication or an equivalent secure authentication service.
+
+Security requirements:
+- Never store plain-text passwords.
+- Never expose service-role keys in frontend code.
+- Use environment variables.
+- Validate user sessions.
+- Protect private routes.
+- Implement Row Level Security (RLS).
+- Ensure users cannot read or modify other users' private records.
+
+---
+
+# PART 7. ONBOARDING AND PERSONALIZATION
+
+After successful registration, users enter a personalized onboarding flow.
+
+The onboarding process should be simple, attractive and interactive.
+
+Use a step-by-step interface with a progress indicator.
+
+### Step 1: Welcome
+
+Ask:
+"Bạn muốn BRAVE giúp mình thay đổi điều gì?"
+
+"What would you like BRAVE to help you improve?"
+
+### Step 2: Personal Goals
+
+Allow users to select up to three goals:
+
+- Improve communication.
+- Build self-confidence.
+- Overcome procrastination.
+- Become more socially active.
+- Improve public speaking.
+- Express personal opinions.
+- Try new experiences.
+- Become more independent.
+- Improve leadership skills.
+- Develop discipline.
+
+### Step 3: Identify Fears
+
+Allow multiple selections:
+
+- Fear of judgment.
+- Fear of rejection.
+- Fear of failure.
+- Fear of public speaking.
+- Fear of starting conversations.
+- Fear of making mistakes.
+- Fear of being alone.
+- Fear of trying new things.
+- Fear of expressing opinions.
+- Fear of criticism.
+- Other / Not sure yet.
+
+### Step 4: Confidence Level
+
+Ask users to rate their current confidence from 1 to 10.
+
+### Step 5: Preferred Challenge Intensity
+
+Options:
+
+- Gentle: One small task per day.
+- Balanced: Moderate daily challenges.
+- Ambitious: More challenging experiences.
+
+### Step 6: Available Time
+
+Ask users how much time they can spend daily:
+
+- 5 minutes.
+- 10 minutes.
+- 15 minutes.
+- 30 minutes.
+- Flexible.
+
+### Step 7: Personalized Plan
+
+Generate a customized personal growth roadmap.
+
+Users must be able to edit their preferences later.
+
+---
+
+# PART 8. CORE FEATURES – CÁC TÍNH NĂNG CHÍNH
+
+## FEATURE 1. HOME DASHBOARD
+
+The homepage is the user's personal command center.
+
+Display:
+
+1. Personalized greeting.
+2. Current date.
+3. Daily courage challenge.
+4. Current streak.
+5. Courage Points.
+6. Progress overview.
+7. Quick access to important features.
+8. Daily motivational message.
+9. Upcoming challenges.
+
+The homepage must be clean, attractive and easy to navigate.
+
+The daily challenge must be prominently displayed.
+
+Example:
+
+"Today's Little Courage"
+
+Challenge:
+"Start a conversation with someone new."
+
+Description:
+"Chủ động bắt chuyện với một người bạn chưa thân. Không cần hoàn hảo, chỉ cần bắt đầu."
+
+Display:
+- Estimated duration.
+- Difficulty level.
+- Related fear category.
+- Reward points.
+- Start challenge button.
+- Complete challenge button.
+
+## FEATURE 2. FEAR MAP – BẢN ĐỒ NỖI SỢ
+
+Purpose:
+
+Help users identify, categorize and understand their fears.
+
+Features:
+
+1. Select multiple fear categories.
+2. Add personal fears.
+3. Rate fear intensity from 1 to 10.
+4. Describe situations that trigger the fear.
+5. Record emotional responses.
+6. Track fear-related progress.
+7. Review previous entries.
+8. Generate personalized recommendations.
+
+The system should visualize the user's fear profile using attractive charts or category cards.
+
+IMPORTANT:
+Do not label users as psychologically abnormal or diagnose mental disorders.
+
+## FEATURE 3. AI BRAVE COACH
+
+This is one of BRAVE's most important features.
+
+Build an AI-powered personal growth companion.
+
+The AI Coach should:
+
+1. Listen to users' concerns.
+2. Help identify underlying fears.
+3. Ask reflective questions.
+4. Suggest practical actions.
+5. Generate personalized challenges.
+6. Provide encouragement.
+7. Help users reflect on experiences.
+8. Adjust challenge difficulty according to progress.
+9. Communicate naturally in Vietnamese and English.
+10. Remember relevant user preferences with permission.
+
+Example conversation:
+
+User:
+"Tôi rất sợ phát biểu trước lớp vì sợ mọi người đánh giá."
+
+AI Coach:
+"Bạn không cần phải trở thành người tự tin nhất trong lớp ngay lập tức. Chúng ta có thể bắt đầu bằng một bước nhỏ. Ngày mai, bạn thử đặt một câu hỏi ngắn trong lớp nhé. Bạn nghĩ điều gì khiến mình lo lắng nhất khi phải phát biểu?"
+
+AI personality:
+- Warm.
+- Empathetic.
+- Non-judgmental.
+- Encouraging.
+- Practical.
+- Respectful.
+- Never condescending.
+
+The AI should avoid generic motivational responses.
+
+It should provide actionable recommendations.
+
+IMPORTANT:
+If an AI API is unavailable, provide a rule-based fallback coach. The core application must remain functional without paid AI services.
+
+Do not claim that the AI can diagnose, treat or replace professional mental healthcare.
+
+## FEATURE 4. COURAGE LADDER
+
+Create a progressive challenge system.
+
+Users advance through different levels.
+
+Level 1: Tiny Courage
+- Smile at someone.
+- Say hello.
+- Send the first message.
+- Ask a simple question.
+
+Level 2: Social Courage
+- Start a conversation.
+- Share an opinion.
+- Ask for help.
+- Join a group discussion.
+
+Level 3: Expressive Courage
+- Speak in front of a small group.
+- Express disagreement respectfully.
+- Participate actively in class.
+- Share personal ideas.
+
+Level 4: Growth Courage
+- Give a presentation.
+- Join a new activity.
+- Introduce yourself to new people.
+- Take on an unfamiliar responsibility.
+
+Level 5: Beyond Comfort
+- Lead a group activity.
+- Perform in front of an audience.
+- Initiate a meaningful difficult conversation.
+- Take a meaningful personal challenge.
+
+The levels must adapt to the user's personal fears and capabilities.
+
+Never force users to complete a challenge they find unsafe or overwhelming.
+
+Users can repeat, skip or reduce challenge difficulty.
+
+## FEATURE 5. DAILY BRAVE CHALLENGE
+
+Generate one daily challenge based on:
+
+- User goals.
+- Fear categories.
+- Confidence level.
+- Previous achievements.
+- Preferred challenge intensity.
+- Available time.
+
+Each challenge includes:
+
+- Challenge title.
+- Explanation.
+- Step-by-step instructions.
+- Estimated time.
+- Difficulty.
+- Related skill.
+- Completion criteria.
+- Reward points.
+
+Allow users to:
+- Start.
+- Pause.
+- Complete.
+- Skip.
+- Replace a challenge.
+- Add personal notes.
+- Rate difficulty afterward.
+
+## FEATURE 6. BRAVE DIARY
+
+A private reflection journal.
+
+Users can:
+
+1. Write daily reflections.
+2. Record emotions.
+3. Describe completed challenges.
+4. Upload optional evidence or photos.
+5. Record lessons learned.
+6. Track personal growth over time.
+7. Search previous entries.
+
+Reflection prompts:
+
+- What made you uncomfortable today?
+- What did you do despite feeling afraid?
+- What did you learn?
+- What would you do differently next time?
+- What are you proud of today?
+
+Diary entries must be private by default.
+
+## FEATURE 7. MY JOURNEY
+
+A personal progress dashboard.
+
+Display:
+
+- Total completed challenges.
+- Courage Points.
+- Current streak.
+- Longest streak.
+- Completed challenge categories.
+- Weekly progress.
+- Monthly progress.
+- Personal milestones.
+- Confidence self-ratings over time.
+
+Use elegant visual charts.
+
+Do not compare users' psychological progress with other people.
+
+Focus on personal improvement.
+
+## FEATURE 8. BRAVE TOGETHER – COMMUNITY
+
+Create a supportive social community.
+
+Users can:
+
+1. Create posts.
+2. Share achievements.
+3. Share personal growth stories.
+4. React to posts.
+5. Comment.
+6. Follow other users.
+7. Join challenge groups.
+8. Share completed challenges.
+9. Report inappropriate content.
+10. Block other users.
+
+Community principles:
+
+- Respect.
+- Encouragement.
+- Empathy.
+- No humiliation.
+- No bullying.
+- No pressure to disclose personal fears.
+
+Privacy controls must allow users to decide what information is public.
+
+Private diary entries and sensitive personal fear records must never be automatically shared.
+
+Implement basic moderation and reporting tools before launching the community publicly.
+
+## FEATURE 9. FUTURE SELF – LETTER TO MYSELF
+
+Allow users to:
+
+- Write letters to their future selves.
+- Set a delivery date.
+- Create future goals.
+- Review previous letters.
+- Track whether they achieved their goals.
+
+Provide an elegant, emotional writing experience.
+
+## FEATURE 10. PROFILE AND SETTINGS
+
+Each user has a personal profile.
+
+Include:
+
+- Profile picture.
+- Display name.
+- Username.
+- Short biography.
+- Personal goals.
+- Preferred language.
+- Courage Points.
+- Achievement badges.
+- Completed challenges.
+- Account settings.
+- Privacy settings.
+- Notification preferences.
+
+Allow users to edit and delete their information.
+
+---
+
+# PART 9. GAMIFICATION SYSTEM
+
+Create a meaningful reward system.
+
+### Courage Points
+
+Users earn points by completing real-world challenges.
+
+Example:
+
+- Tiny challenge: +10 points.
+- Easy challenge: +15 points.
+- Medium challenge: +25 points.
+- Difficult challenge: +40 points.
+- Major milestone: +60 points.
+
+Points must reward meaningful action, not simply opening the application.
+
+### Achievement Badges
+
+Examples:
+
+- First Step.
+- Little by Little.
+- Social Butterfly.
+- Fearless Speaker.
+- Comfort Zone Explorer.
+- Consistency Star.
+- 7-Day Brave Streak.
+- 30-Day Growth Journey.
+- 100-Day Brave Journey.
+
+### Streak System
+
+Track consecutive days of meaningful activity.
+
+Allow users to take breaks without excessive guilt or pressure.
+
+Gamification must encourage healthy growth rather than addictive usage.
+
+---
+
+# PART 10. NOTIFICATION SYSTEM
+
+Provide optional reminders:
+
+- Daily challenge reminders.
+- Challenge completion reminders.
+- Weekly progress summaries.
+- Milestone notifications.
+- Encouraging messages.
+
+Users must be able to turn notifications on or off.
+
+Avoid excessive notifications.
+
+---
+
+# PART 11. NAVIGATION AND INFORMATION ARCHITECTURE
+
+Create a simple and intuitive navigation system.
+
+Recommended mobile bottom navigation:
+
+1. Home.
+2. My Fear.
+3. Coach.
+4. Challenges.
+5. My Journey.
+
+Place Profile and Settings in the header or account menu.
+
+Community can be accessed from the Home screen or a dedicated navigation item if screen space permits.
+
+Use consistent navigation across all pages.
+
+Do not overcrowd the interface.
+
+---
+
+# PART 12. DATABASE AND BACKEND ARCHITECTURE
+
+Use Supabase as the recommended backend.
+
+Required database entities:
+
+### 1. profiles
+
+- id
+- username
+- full_name
+- avatar_url
+- bio
+- preferred_language
+- created_at
+- updated_at
+
+### 2. user_preferences
+
+- id
+- user_id
+- personal_goals
+- fear_categories
+- confidence_level
+- challenge_intensity
+- available_time
+- notification_preferences
+
+### 3. fears
+
+- id
+- user_id
+- category
+- description
+- intensity
+- triggers
+- created_at
+- updated_at
+
+### 4. challenges
+
+- id
+- title_vi
+- title_en
+- description_vi
+- description_en
+- category
+- difficulty
+- estimated_minutes
+- reward_points
+- is_active
+
+### 5. user_challenges
+
+- id
+- user_id
+- challenge_id
+- status
+- started_at
+- completed_at
+- reflection
+- points_earned
+
+### 6. user_progress
+
+- id
+- user_id
+- total_points
+- current_streak
+- longest_streak
+- completed_challenges
+- updated_at
+
+### 7. diary_entries
+
+- id
+- user_id
+- title
+- content
+- mood
+- created_at
+- updated_at
+
+### 8. future_letters
+
+- id
+- user_id
+- title
+- content
+- delivery_date
+- is_delivered
+- created_at
+
+### 9. community_posts
+
+- id
+- user_id
+- content
+- image_url
+- visibility
+- created_at
+
+### 10. community_comments
+
+- id
+- post_id
+- user_id
+- content
+- created_at
+
+### 11. community_reactions
+
+- id
+- post_id
+- user_id
+- reaction_type
+- created_at
+
+### 12. reports
+
+- id
+- reporter_id
+- reported_content_id
+- reason
+- status
+- created_at
+
+Implement proper foreign keys, indexes, data validation and database constraints.
+
+Implement Row Level Security for all user-owned private records.
+
+A user must only be able to read, update or delete their own private records.
+
+Public community content must follow explicit visibility settings.
+
+Never expose Supabase service-role credentials in frontend code.
+
+---
+
+# PART 13. TECHNICAL REQUIREMENTS
+
+Recommended technology stack:
+
+Frontend:
+- React.
+- TypeScript.
+- Tailwind CSS.
+- Responsive component architecture.
+
+Backend:
+- Supabase.
+- PostgreSQL.
+- Supabase Authentication.
+- Supabase Storage where needed.
+
+AI:
+- Optional AI API integration.
+- Secure server-side API calls.
+- Rule-based fallback if AI is unavailable.
+
+Deployment:
+- Cloudflare Pages or equivalent static hosting.
+- Public HTTPS URL.
+- Custom domain support where available.
+
+Application format:
+- Progressive Web App (PWA).
+- Installable on Android and supported iOS browsers.
+- Responsive on desktop, tablet and mobile.
+
+Use environment variables for all private credentials.
+
+Provide a clean and maintainable code structure.
+
+---
+
+# PART 14. FREE-FIRST BUSINESS AND ACCESSIBILITY MODEL
+
+BRAVE must prioritize accessibility.
+
+Core features should be free:
+
+- Account creation.
+- Personalization.
+- Fear Map.
+- Daily Challenges.
+- Basic AI-free coaching.
+- Courage Ladder.
+- Brave Diary.
+- Progress tracking.
+- Basic community participation.
+
+Use free service tiers wherever possible.
+
+Avoid unnecessary paid subscriptions.
+
+Do not require users to pay to access basic personal growth features.
+
+IMPORTANT:
+Free infrastructure has usage limits. The application must be designed to work within free-tier constraints and degrade gracefully when limits are reached.
+
+Never promise unlimited free AI usage.
+
+AI functionality should be modular and optional.
+
+---
+
+# PART 15. PRIVACY, SECURITY AND USER SAFETY
+
+This application may contain sensitive personal reflections.
+
+Therefore:
+
+1. Private journal entries must remain private.
+2. Fear records must remain private by default.
+3. Users control their public profile.
+4. Users can delete their accounts.
+5. Use secure authentication.
+6. Apply database-level authorization.
+7. Do not expose API secrets.
+8. Do not publicly display sensitive user information.
+9. Provide reporting and blocking tools.
+10. Do not shame users for missed challenges.
+11. Avoid manipulative engagement techniques.
+12. Provide supportive guidance when users describe serious distress.
+13. Clearly explain that BRAVE is not a substitute for professional care.
+
+---
+
+# PART 16. USER EXPERIENCE FLOW
+
+The complete user journey:
+
+STEP 1 – DISCOVER
+User visits the public BRAVE website.
+
+STEP 2 – REGISTER
+User creates a personal account.
+
+STEP 3 – PERSONALIZE
+User selects personal goals, fears and preferred challenge intensity.
+
+STEP 4 – RECEIVE PLAN
+The system creates a customized growth roadmap.
+
+STEP 5 – TAKE ACTION
+User receives and completes daily challenges.
+
+STEP 6 – REFLECT
+User records feelings and experiences in Brave Diary.
+
+STEP 7 – TRACK
+User reviews progress and achievements.
+
+STEP 8 – CONNECT
+User optionally shares achievements with the community.
+
+STEP 9 – GROW
+The system adapts future challenges based on the user's progress.
+
+Core behavioral loop:
+
+DISCOVER → CHALLENGE → ACT → REFLECT → TRACK → GROW.
+
+---
+
+# PART 17. DESIGN AND UX QUALITY STANDARDS
+
+Follow these principles:
+
+### Hick's Law
+Avoid overwhelming users with too many choices at once.
+
+### Fitts's Law
+Make important buttons large and easy to tap.
+
+### Jakob's Law
+Use familiar navigation and interaction patterns.
+
+### Cognitive Load
+Present information progressively.
+
+### Feedback
+Every meaningful action must provide clear feedback.
+
+### Consistency
+Use consistent colors, typography, icons and interaction patterns.
+
+### Accessibility
+Support keyboard navigation, readable text and appropriate contrast.
+
+The application must feel simple even though it offers many features.
+
+---
+
+# PART 18. MVP DEVELOPMENT PRIORITIES
+
+Do not attempt to build every advanced feature simultaneously.
+
+Build in phases.
+
+### PHASE 1 – FUNCTIONAL MVP
+
+Must be fully working:
+
+1. Responsive homepage.
+2. Vietnamese and English language switching.
+3. Real registration and login.
+4. Password reset.
+5. User profile.
+6. Personalized onboarding.
+7. Fear Map.
+8. Daily Brave Challenge.
+9. Courage Ladder.
+10. Brave Diary.
+11. My Journey dashboard.
+12. Database integration.
+13. User-specific data persistence.
+14. Basic PWA installation.
+
+### PHASE 2 – ADVANCED FEATURES
+
+1. AI Brave Coach.
+2. Personalized challenge generation.
+3. Advanced progress analytics.
+4. Achievement badges.
+5. Notification system.
+6. Future Self letters.
+
+### PHASE 3 – COMMUNITY
+
+1. Community feed.
+2. Posts and comments.
+3. Reactions.
+4. User profiles.
+5. Follow system.
+6. Content moderation.
+7. Reporting and blocking.
+
+---
+
+# PART 19. IMPORTANT IMPLEMENTATION INSTRUCTIONS
+
+You are acting as a senior full-stack developer, UI/UX designer, product architect and database engineer.
+
+Your task is to BUILD the actual BRAVE application, not merely describe it.
+
+NON-NEGOTIABLE REQUIREMENTS:
+
+1. Do not create a static landing page and call it a finished app.
+2. Do not create buttons that do nothing.
+3. Do not simulate successful authentication in production.
+4. Do not store production user credentials in localStorage.
+5. Do not use mock data as a substitute for the production database.
+6. Do not leave major pages unfinished.
+7. Do not implement only the English interface.
+8. Do not make the mobile layout an afterthought.
+9. Do not expose API keys.
+10. Do not claim deployment is complete unless a working public URL exists.
+
+Build a real, functional application with working navigation, forms, validation, authentication, persistent data and responsive layouts.
+
+If an external service requires credentials or authorization, clearly explain exactly what the user must provide.
+
+Do not invent credentials, project IDs or deployment URLs.
+
+Use a modular architecture so new features can be added without rewriting the entire application.
+
+Before declaring completion, test the complete user journey:
+
+- Open the public URL.
+- Register a new account.
+- Verify the account.
+- Log in.
+- Complete onboarding.
+- Save personal preferences.
+- Create and complete a challenge.
+- Earn points.
+- Refresh the page.
+- Verify that progress persists.
+- Switch between Vietnamese and English.
+- Log out.
+- Log back in.
+- Confirm that private user data remains correctly associated with the account.
+- Test on mobile and desktop.
+
+Fix all errors discovered during testing.
+
+---
+
+# PART 20. FINAL DELIVERABLES
+
+When development is complete, provide:
+
+1. A working public application URL.
+2. A mobile-responsive interface.
+3. A functioning Vietnamese-English switch.
+4. Real authentication.
+5. A connected production database.
+6. Secure user-specific data storage.
+7. A PWA installation option.
+8. Source code.
+9. Database schema and setup instructions.
+10. Deployment instructions.
+11. Environment variable documentation.
+12. A list of completed features.
+13. A list of features that still require external credentials or paid services.
+
+The application should be ready for real users to register and use.
+
+FINAL PRODUCT GOAL:
+
+BRAVE must become a beautiful, reliable, accessible and practical personal growth platform.
+
+It should help people stop waiting until they feel fearless and start taking meaningful action today.
+
+BRAVE — Turn Your Fear Into Your Strength.
